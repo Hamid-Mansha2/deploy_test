@@ -1,0 +1,38 @@
+language: node_js
+node_js:
+  - '16.10.0'
+cache:
+  yarn: true
+  directories:
+    - node_modules
+before_install:
+  - curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.19.1
+  - export PATH="$HOME/.yarn/bin:$PATH"
+install:
+  - yarn install
+dist: focal
+os: linux
+before_script:
+  - sudo systemctl start postgresql@13-main
+script:
+  - # Add your build and test commands here
+deploy:
+  - provider: s3
+    access_key: AKIAU65TDUORF3MSIYPJ
+    secret_access_key: SSLlioPsNrT8a/EyzpfaxMEKHQc2uya9pPDzOCwv
+    bucket: testing-bucket-dpl
+    local_dir: dpl_cd_upload
+    cleanup: false
+    on:
+      branch: main
+  - provider: codedeploy
+    access_key: AKIAU65TDUORF3MSIYPJ
+    secret_access_key: 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
+    bucket: testing-bucket-dpl
+    key: latest.zip
+    bundle_type: zip
+    application: seiu503MemberApp2019
+    deployment_group: seiu503MemberApp2019-DepGroup
+    region: us-west-2
+    on:
+      branch: main
